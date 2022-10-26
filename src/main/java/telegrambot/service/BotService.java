@@ -177,4 +177,12 @@ public class BotService implements ConfigLocalMessage {
                 .tipoMensagem(TipoResposta.SIMPLE_MESSAGE)
                 .build();
     }
+
+    public BotAnswer timerBot() {
+        return BotAnswer.builder()
+                .message(getTextMessage("Ola, esta a fim de ler uma piada para alegrar o seu dia?"))
+                .tipoMensagem(TipoResposta.SIMPLE_MESSAGE)
+                .build();
+    }
+
 }

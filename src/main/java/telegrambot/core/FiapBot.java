@@ -15,6 +15,8 @@ import telegrambot.service.BotService;
 import telegrambot.service.JokeService;
 
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @Log
 public class FiapBot {
@@ -45,7 +47,7 @@ public class FiapBot {
         BotService botService = new BotService();
 
         // Loop infinito pode ser alterado por algum timer de intervalo curto.
-        while(true) {
+        while (true) {
             // Executa comando no Telegram para obter as mensagens pendentes a partir de um
             // off-set (limite inicial).
             updatesResponse = bot.execute(new GetUpdates().limit(initialization.getUpdatesLimit()).offset(offSetStart));
@@ -54,12 +56,12 @@ public class FiapBot {
             List<Update> updates = updatesResponse.updates();
 
             // Analise de cada acao da mensagem.
-            for(Update update : updates) {
+            for (Update update : updates) {
 
                 // Atualizacao do off-set.
                 offSetStart = update.updateId() + 1;
 
-                if(update.message() != null) {
+                if (update.message() != null) {
                     log.info("Recebendo mensagem: " + update.message().text());
 
                     // Envio de "Escrevendo" antes de enviar a resposta.
@@ -80,9 +82,27 @@ public class FiapBot {
 
                     // Verificacao de mensagem enviada com sucesso.
                     log.info("Mensagem Enviada? " + sendResponse.isOk());
+                } else {
+
+                    long delay = 0; //
+                    long period = 30000; // 30 segundos
+                    Timer timer = new Timer();
+                    TimerTask task = new TimerTask() {
+                        @Override
+                        public void run() {
+                            BotAnswer botAnswer = botService.timerBot();
+
+                            log.info("id? " + update.message().chat().id());
+
+                            sendResponse = bot.execute(botService.createSendMessageObject(update.message().chat().id(), botAnswer, update.message().messageId()));
+                            System.out.print("teste timer");
+                        }
+
+                    };
+                    timer.schedule(task, period);
                 }
             }
         }
-    }
 
+    }
 }
